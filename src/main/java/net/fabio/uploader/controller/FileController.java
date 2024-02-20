@@ -7,6 +7,7 @@ import services.FileService;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,30 +24,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 
-		@RestController
-		@RequestMapping("/api/files")
+@RestController
+@RequestMapping("/api/files")
+
+public class FileController {
 		
-		public class FileController {
+    @Autowired
+    private FileService fileService;
 		
-		    @Autowired
-		    private FileService fileService;
-		
-		    @PostMapping("/upload")
-		    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws SAXException, ParserConfigurationException, ParseException {
-		        try {
-		            fileService.uploadFile(file);
-		            return ResponseEntity.ok().body("Arquivo enviado com sucesso.");
-		        } catch (IOException e) {
-		            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Falha ao processar o arquivo.");
-		        }
-		    }
-		
-		
-		@GetMapping("/getAll")
-		public ResponseEntity<List<FileDto>> getAllFiles() {
-		    List<FileDto> files = fileService.getAllFiles();
-		    return ResponseEntity.ok().body(files);
-		}
+    @PostMapping("upload")
+    public ResponseEntity<List<FileDto>> uploadFile(@RequestParam("file") ArrayList<MultipartFile> files) {
+        List<FileDto> updatedFiles = fileService.uploadFile(files);
+        return ResponseEntity.ok().body(updatedFiles);
+    }
+	
+	
+	@GetMapping("/getAll")
+	public ResponseEntity<List<FileDto>> getAllFiles() {
+	    List<FileDto> files = fileService.getAllFiles();
+	    return ResponseEntity.ok().body(files);
+	}
 //		@GetMapping("/download/{fileId}")
 //	    public ResponseEntity<byte[]> downloadFile(@PathVariable Long fileId) {
 //	        byte[] content = fileService.downloadFile(fileId);

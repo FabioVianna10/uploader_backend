@@ -43,60 +43,100 @@ public class FileService {
     @Autowired
     private BinaryFileRepository binaryFileRepository;
 
-    public void uploadFile(MultipartFile file) throws IOException, SAXException, ParserConfigurationException, ParseException {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("O arquivo está vazio.");
-        }
+    public List<FileDto> uploadFile(ArrayList<MultipartFile> files) {
+    	files.forEach((file) -> {
+    		try {
+    			InputStream inputStream = file.getInputStream();
+    			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+    			Document doc = dBuilder.parse(inputStream);
+    			doc.getDocumentElement().normalize();
 
-        if (!file.getContentType().equals("application/xml")) {
-            throw new IllegalArgumentException("O arquivo não é um XML.");
-        }
-        
-        
-        InputStream inputStream = file.getInputStream();
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(inputStream);
-        doc.getDocumentElement().normalize();
-        NodeList nodeList = doc.getElementsByTagName("/nfeProc/NFe/infNFe/");
-        FileEntity fileEntity = new FileEntity(null, null, null, null, null, null, null, null, null, null);
-        for (int temp = 0; temp < nodeList.getLength(); temp++){
-        	Node node = nodeList.item(temp);
-        	if(node.getNodeType() == Node.ELEMENT_NODE){
-        		Element element = (Element) node;
-        		fileEntity.setFileId(element.getAttribute("id"));
-        		String dataEmissao = element.getElementsByTagName("ide/dhEmi").item(0).getTextContent();
-        		String pattern = "yyyy-MM-dd'T'HH:mm:ssXXX";
-        		SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
-        		Date date = dateFormat.parse(dataEmissao);		
-        		fileEntity.setDhEmi(date);
-        		String nNF = element.getElementsByTagName("ide/nNF").item(0).getTextContent();
-        		fileEntity.setnNF(nNF);
-        		String cUF = element.getElementsByTagName("ide//cUF").item(0).getTextContent();
-        		fileEntity.setcUF(cUF);
-        		String emitCNPJ = element.getElementsByTagName("emit/CNPJ").item(0).getTextContent();
-        		fileEntity.setCNPJ(emitCNPJ);
-        		String emitXfant = element.getElementsByTagName("emit/xFant").item(0).getTextContent();
-        		fileEntity.setxFant(emitXfant);
-        		String destCnpj = element.getElementsByTagName("dest/CNPJ").item(0).getTextContent();
-        		fileEntity.setDesCNPJ(destCnpj);
-        		String destXnome = element.getElementsByTagName("dest/xNome").item(0).getTextContent();
-        		fileEntity.setDesxNome(destXnome);
-        		String vTotTrib = element.getElementsByTagName("vTotTrib").item(0).getTextContent();
-        		fileEntity.setvTotTrib(Double.parseDouble(vTotTrib));
-        		String vNF = element.getElementsByTagName("vNF").item(0).getTextContent();
-        		fileEntity.setvNF(Double.parseDouble(vNF));	
-        	}
-        }
-       
-        FileEntity savedFileEntity = fileRepository.save(fileEntity);
-        
-        BinaryFileEntity binaryFileEntity = new BinaryFileEntity();
-        binaryFileEntity.setConteudoBinario(file.getBytes());
-        binaryFileEntity.setFileEntity(savedFileEntity);
-        
-        binaryFileRepository.save(binaryFileEntity);
+    			// Obtendo o elemento raiz <nfeProc>
+    			Node nfeProcNode = doc.getDocumentElement();
+
+    			// Navegando para o elemento <NFe> dentro de <nfeProc>
+    			Node nFeNode = getChildNodeByTagName(nfeProcNode, "NFe");
+
+    			// Navegando para o elemento <infNFe> dentro de <NFe>
+    			Node infNFeNode = getChildNodeByTagName(nFeNode, "infNFe");
+
+    			FileEntity fileEntity = new FileEntity();
+    			// Obtendo os elementos filhos de <infNFe> e configurando os valores em fileEntity
+    			if (infNFeNode.getNodeType() == Node.ELEMENT_NODE) {
+    			    Element infNFeElement = (Element) infNFeNode;
+    			    fileEntity.setFileId(infNFeElement.getAttribute("Id"));
+    			    fileEntity.setnNF(getChildNodeTextContent(infNFeElement, "ide/nNF"));
+    			    fileEntity.setDhEmi(getDateFromString(getChildNodeTextContent(infNFeElement, "ide/dhEmi")));
+    			    fileEntity.setcUF(getChildNodeTextContent(infNFeElement, "ide/cUF"));
+    			    fileEntity.setxFant(getChildNodeTextContent(infNFeElement, "emit/xFant"));
+    			    fileEntity.setCNPJ(getChildNodeTextContent(infNFeElement, "ëmit/CNPJ"));
+    			    fileEntity.setDesCNPJ(getChildNodeTextContent(infNFeElement, "dest/CNPJ"));
+    			    fileEntity.setDesxNome(getChildNodeTextContent(infNFeElement, "dest/xNome"));
+    			    fileEntity.setvTotTrib(Double.parseDouble(getChildNodeTextContent(infNFeElement, "total/ICMSTot/vTotTrib")));
+    			    fileEntity.setvNF(Double.parseDouble(getChildNodeTextContent(infNFeElement, "total/ICMSTot/vNF")));
+    			}
+               
+                FileEntity savedFileEntity = fileRepository.save(fileEntity);
+                
+                BinaryFileEntity binaryFileEntity = new BinaryFileEntity();
+                binaryFileEntity.setConteudoBinario(file.getBytes());
+                binaryFileEntity.setFileEntity(savedFileEntity);
+                
+                binaryFileRepository.save(binaryFileEntity);
+    		} catch (IOException | SAXException | ParserConfigurationException | ParseException e) {
+    			return;
+    		}
+    	});
+    	List<FileEntity> fileEntities = fileRepository.findAll();
+        Mapper mapper = new Mapper();
+        List<FileDto> updatedFiles = fileEntities.stream().map(fe -> mapper.fileEntityToDto(fe)).collect(Collectors.toList());
+		return updatedFiles;	
     }
+    
+ // Função auxiliar para obter o nó filho de um nó pai com um determinado nome de tag
+	private Node getChildNodeByTagName(Node parentNode, String tagName) {
+	    NodeList nodeList = parentNode.getChildNodes();
+	    String[] tags = tagName.split("/");
+	    for (int i = 0; i < nodeList.getLength(); i++) {
+	        Node node = nodeList.item(i);
+	        if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(tags[0])) {
+	        	if (tags.length == 1) {
+		        	return node;
+		        }
+	        	NodeList childNodes = node.getChildNodes();
+	        	for (int idxChild = 0; idxChild < childNodes.getLength(); idxChild++) {
+	        		Node childNode = childNodes.item(idxChild);
+	        		if (childNode.getNodeType() == Node.ELEMENT_NODE && childNode.getNodeName().equals(tags[1])) {
+	        			if (tags.length == 2) {
+	        				return childNode;
+	        			}
+	        			NodeList thirdLevelChildNodes = childNode.getChildNodes();
+	        			for (int idxThirdLevelChild = 0; idxThirdLevelChild < thirdLevelChildNodes.getLength(); idxThirdLevelChild++) {
+	        				Node thirdLevelChildNode = thirdLevelChildNodes.item(idxThirdLevelChild);
+	        				if (thirdLevelChildNode.getNodeType() == Node.ELEMENT_NODE && thirdLevelChildNode.getNodeName().equals(tags[2])) {
+	        					return thirdLevelChildNode;
+	        				}
+	        			}
+	        		}
+	        	}
+	            
+	        }
+	    }
+	    return null;
+	}
+
+	// Função auxiliar para obter o conteúdo de texto de um nó filho de um nó pai com um determinado nome de tag
+	private String getChildNodeTextContent(Element parentElement, String tagName) {
+	    Node node = getChildNodeByTagName(parentElement, tagName);
+	    return node != null ? node.getTextContent() : null;
+	}
+	
+	// Função auxiliar para converter uma string de data no formato "yyyy-MM-dd'T'HH:mm:ssXXX" em um objeto Date
+	private Date getDateFromString(String dateString) throws ParseException {
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+	    return dateFormat.parse(dateString);
+	}
 
     public List<FileDto> getAllFiles() {
         List<FileEntity> fileEntities = fileRepository.findAll();
