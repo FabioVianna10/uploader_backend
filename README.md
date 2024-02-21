@@ -14,9 +14,9 @@ Spring Boot: O framework Spring Boot foi utilizado para facilitar o desenvolvime
 PostgreSQL: O banco de dados PostgreSQL foi escolhido para armazenar os arquivos XML enviados pelos usuários, garantindo segurança e confiabilidade no armazenamento dos dados.
 
 
--Como Executar o Projeto
-  -Clone o repositório do backend para o seu ambiente local.
-  -Certifique-se de ter o Java JDK 21 e o Maven instalados em sua máquina.
-  -Configure as credenciais de acesso ao banco de dados PostgreSQL no arquivo de configuração do Spring Boot.
-  -Execute o comando mvn spring-boot:run para iniciar o servidor.
-  -O backend estará acessível através dos endpoints definidos no projeto, geralmente em http://localhost:8080.
+- Como Executar o Projeto
+  - Clone o repositório do backend para o seu ambiente local.
+  - Certifique-se de ter o Java JDK 21 e o Maven instalados em sua máquina.
+  - Configure as credenciais de acesso ao banco de dados PostgreSQL no arquivo de configuração do Spring Boot.
+  - Execute o comando mvn spring-boot:run para iniciar o servidor.
+  - O backend estará acessível através dos endpoints definidos no projeto, geralmente em http://localhost:8080.
