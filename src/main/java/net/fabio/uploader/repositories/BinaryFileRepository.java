@@ -6,5 +6,5 @@ import net.fabio.uploader.model.*;
 
 @Repository
 public interface BinaryFileRepository extends JpaRepository<BinaryFileEntity, Long> {
-    
+	BinaryFileEntity findByFileEntityId(Long id);
 }

@@ -6,5 +6,5 @@ import net.fabio.uploader.model.*;
 
 @Repository
 public interface FileRepository extends JpaRepository<FileEntity, Long> {
- 
+
 }

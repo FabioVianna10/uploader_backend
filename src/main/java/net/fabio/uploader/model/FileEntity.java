@@ -7,45 +7,44 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-
 @Entity
 public class FileEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	private String fileId;
-    
-    private String nNF;
-    private Date dhEmi;
-    private String cUF;
-    private String CNPJ;
-    private String xFant;
-    private String desCNPJ;
-    private String desxNome;
-    private Double vTotTrib;
-    private Double vNF;
-    
-    public FileEntity() {
-    }
-    
-    public FileEntity (String fileId, String nNF, Date dhEmi, String cUF,String CNPJ,String xFant,String desCNPJ,String desxNome,Double vTotTrib, Double vNF) {
-    	this.fileId = fileId;
-    	this.nNF = nNF;
-    	this.dhEmi = dhEmi;
-    	this.cUF = cUF;
-    	this .CNPJ = CNPJ;
-    	this.xFant = xFant;
-    	this.desCNPJ = desCNPJ;
-    	this.desxNome = desxNome;
-    	this. vTotTrib = vTotTrib;
-    	this.vNF = vNF;	
-    }
-    
-    public Long getId() {
+
+	private String nNF;
+	private Date dhEmi;
+	private String cUF;
+	private String CNPJ;
+	private String xFant;
+	private String desCNPJ;
+	private String desxNome;
+	private Double vTotTrib;
+	private Double vNF;
+
+	public FileEntity() {
+	}
+
+	public FileEntity(Long id, String fileId, String nNF, Date dhEmi, String cUF, String CNPJ, String xFant, String desCNPJ,
+			String desxNome, Double vTotTrib, Double vNF) {
+		this.id = id;
+		this.fileId = fileId;
+		this.nNF = nNF;
+		this.dhEmi = dhEmi;
+		this.cUF = cUF;
+		this.CNPJ = CNPJ;
+		this.xFant = xFant;
+		this.desCNPJ = desCNPJ;
+		this.desxNome = desxNome;
+		this.vTotTrib = vTotTrib;
+		this.vNF = vNF;
+	}
+
+	public Long getId() {
 		return id;
 	}
 
@@ -132,8 +131,5 @@ public class FileEntity {
 	public void setvNF(Double vNF) {
 		this.vNF = vNF;
 	}
-    
-	
-    
-    
+
 }

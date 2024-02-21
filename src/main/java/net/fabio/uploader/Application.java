@@ -11,20 +11,18 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"net.fabio.uploader.controller", "services"})
+@ComponentScan(basePackages = { "net.fabio.uploader.controller", "services" })
 public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
-	
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		
-        http
-        .authorizeHttpRequests(request -> request.anyRequest().permitAll())
-        		.csrf(AbstractHttpConfigurer::disable);
-        return http.build();
-    }
+
+		http.authorizeHttpRequests(request -> request.anyRequest().permitAll()).csrf(AbstractHttpConfigurer::disable);
+		return http.build();
+	}
 
 }

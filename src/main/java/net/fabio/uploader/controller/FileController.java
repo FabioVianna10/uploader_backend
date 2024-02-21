@@ -13,6 +13,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.http.MediaType;
@@ -44,13 +45,16 @@ public class FileController {
 	    List<FileDto> files = fileService.getAllFiles();
 	    return ResponseEntity.ok().body(files);
 	}
-//		@GetMapping("/download/{fileId}")
-//	    public ResponseEntity<byte[]> downloadFile(@PathVariable Long fileId) {
-//	        byte[] content = fileService.downloadFile(fileId);
-//	        HttpHeaders headers = new HttpHeaders();
-//	        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//	        headers.setContentDispositionFormData("attachment", "file.xml");
-//	        return new ResponseEntity<>(content, headers, HttpStatus.OK);
-//	    }
+
+	@CrossOrigin
+	@GetMapping("/download/{fileId}")
+	public ResponseEntity<byte[]> downloadFile(@PathVariable Long fileId) throws NotFoundException {
+		byte[] content = fileService.downloadFile(fileId);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_XML);
+		headers.setContentDispositionFormData("attachment", "file.xml");
+
+		return new ResponseEntity<>(content, headers, HttpStatus.OK);
+	}
 	}
 		
