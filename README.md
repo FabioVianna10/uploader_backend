@@ -20,3 +20,6 @@ PostgreSQL: O banco de dados PostgreSQL foi escolhido para armazenar os arquivos
   - Configure as credenciais de acesso ao banco de dados PostgreSQL no arquivo de configuração do Spring Boot.
   - Execute o comando mvn spring-boot:run para iniciar o servidor.
   - O backend estará acessível através dos endpoints definidos no projeto, geralmente em http://localhost:8080.
+ 
+    
+  -   - Video do projeto rodando - https://www.loom.com/share/0e6e848d110a49b3906048269101829a?sid=8ffde4a1-2e68-458c-96f6-a0d355e0b3a4
